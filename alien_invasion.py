@@ -11,6 +11,9 @@ class AlienInvasion:
         self.screen = pygame.display.set_mode((1200,800))
         pyagme.display.set_caption("Alien Invasion")
 
+        # set the background color
+        self.bg_color = (230,230,230)
+
     def run_game(self):
         """start the main circulation"""
         while True:
@@ -18,6 +21,9 @@ class AlienInvasion:
             for event in pygame.event.get():
                 if event.type == pygame.QUiT:
                     sys.exit()
+
+            # fill the screen after every circulation
+            self.screen.fill(self.bg_color)
 
             # make the lately screen visible
             pygame.display.flip()
