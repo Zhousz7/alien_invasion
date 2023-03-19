@@ -21,10 +21,7 @@ class AlienInvasion:
     def run_game(self):
         """start the main circulation"""
         while True:
-            # monitor the keyboard and mouse event
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
+            self._check_events()
 
             # fill the screen after every circulation
             self.screen.fill(self.settings.bg_color)
@@ -32,6 +29,21 @@ class AlienInvasion:
 
             # make the lately screen visible
             pygame.display.flip()
+
+
+    def _check_events(self):
+        """response for keyboard and mouse events"""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+
+    def _update_screen(self):
+        """update the image and switch to the new screen"""
+        self.screen.fill(self.settings.bg_color)
+        self.ship.blitme()
+
+        pygame.display.flip()
 
 if __name__ == '__main__':
     # create the game example and run the game
