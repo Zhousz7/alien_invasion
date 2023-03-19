@@ -8,7 +8,7 @@ class Ship:
         self.screen_rect = ai_game.screen.get_rect()
 
         # load the ship image and get its bounding rectangle
-        self.image = pyagme.image.load('images/ship.bmp')
+        self.image = pygame.image.load('images/ship.bmp')
         self.rect = self.image.get_rect()
 
         # for every new ship,put it on the middle of bottom of screen
@@ -17,4 +17,3 @@ class Ship:
     def blitme(self):
         """draw the ship on giving position"""
         self.screen.blit(self.image,self.rect)
-        
