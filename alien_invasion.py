@@ -25,7 +25,6 @@ class AlienInvasion:
 
         self._create_fleet()
 
-
     def run_game(self):
         """start the main circulation"""
         while True:
@@ -33,7 +32,6 @@ class AlienInvasion:
             self.ship.update()
             self._update_bullets()
             self._update_screen()
-
 
     def _check_events(self):
         """response for keyboard and mouse events"""
@@ -44,7 +42,6 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
-
 
     def _check_keydown_events(self, event):
         """response for keydown"""
@@ -57,7 +54,6 @@ class AlienInvasion:
         elif event.key == pygame.K_SPACE:
             self._fire_bullet()
 
-
     def _check_keyup_events(self, event):
         """response for keyup"""
         if event.key == pygame.K_RIGHT:
@@ -65,13 +61,11 @@ class AlienInvasion:
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
 
-
     def _fire_bullet(self):
         """create a bullet and add it to bullets group"""
         if len(self.bullets) < self.settings.bullets_allowed:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
-
 
     def _update_bullets(self):
         """refresh the bullet's position and delete dispearing bullet"""
@@ -83,13 +77,34 @@ class AlienInvasion:
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
 
-
     def _create_fleet(self):
         """create alien groups"""
-        # create an alien
+        # create an alien and calculate how many aliens a line can hold
+        # the space between aliens is its width
         alien = Alien(self)
-        self.aliens.add(alien)
+        alien_width, alien_height = alien.rect.size
+        available_space_x = self.settings.screen_width - (2 * alien_width)
+        number_aliens_x = available_space_x // (2 * alien_width)
 
+        # calculate how many rows the screen can hold
+        ship_height = self.ship.rect.height
+        available_space_y = (self.settings.screen_height -
+                             (3 * alien_height) - ship_height)
+        number_rows = available_space_y // (2 * alien_height)
+
+        # create the alien fleet
+        for row_number in range(number_rows):
+            for alien_number in range(number_aliens_x):
+                self._create_alien(alien_number, row_number)
+
+    def _create_alien(self, alien_number,row_number):
+        """create an alien and add it to the line"""
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+        self.aliens.add(alien)
 
     def _update_screen(self):
         """update the image and switch to the new screen"""
