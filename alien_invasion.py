@@ -1,7 +1,10 @@
 import sys
+from time import sleep
+
 import pygame
 
 from settings import Settings
+from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -19,6 +22,9 @@ class AlienInvasion:
         self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien Invasion")
 
+        # create a class for restoring game statistical information
+        self.stats = GameStats(self)
+
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -29,9 +35,10 @@ class AlienInvasion:
         """start the main circulation"""
         while True:
             self._check_events()
-            self.ship.update()
-            self._update_bullets()
-            self._update_aliens()
+            if self.stats.game_active:
+                self.ship.update()
+                self._update_bullets()
+                self._update_aliens()
             self._update_screen()
 
     def _check_events(self):
@@ -95,10 +102,45 @@ class AlienInvasion:
         self._check_fleet_edges()
         self.aliens.update()
 
+        # check collision between ship and alien
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            self._ship_hit()
+
+        # check if any alien arrive the bottom
+        self._check_aliens_bottom()
+
         if not self.aliens:
             # delete existing bullet and create a new group of aliens
             self.bullets.empty()
             self._create_fleet()
+
+    def _ship_hit(self):
+        """responding for ship hit by aliens"""
+        if self.stats.ships_left > 0:
+            # substract ship_left 1
+            self.stats.ships_left -= 1
+
+            # delete the rest aliens and bullets
+            self.aliens.empty()
+            self.bullets.empty()
+
+            # create a new fleet aliens and put the ship to the middle
+            self._create_fleet()
+            self.ship.center_ship()
+
+            # pause
+            sleep(0.5)
+        else:
+            self.stats.game_active = False
+
+    def _check_aliens_bottom(self):
+        """check if any alien reach the bottom"""
+        screen_rect = self.screen.get_rect()
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= screen_rect.bottom:
+                # manage it as same as collision
+                self._ship_hit()
+                break
 
     def _create_fleet(self):
         """create alien groups"""
@@ -120,7 +162,7 @@ class AlienInvasion:
             for alien_number in range(number_aliens_x):
                 self._create_alien(alien_number, row_number)
 
-    def _create_alien(self, alien_number,row_number):
+    def _create_alien(self, alien_number,  row_number):
         """create an alien and add it to the line"""
         alien = Alien(self)
         alien_width, alien_height = alien.rect.size
